@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Trading</title>
+    <style type="text/css">
+        .container {
+            text-align: center;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Please input your favarite ticker symbol</h1>
+        <p>if you like "Microsoft", please input msft.</p>
+        <form method="POST" action="#">
+            <label for="id_ticker">ティッカーシンボル:</label>
+            <input type="text" name="ticker" maxlength="255" required id="id_ticker">
+            <input type="submit" value="Submit">
+        </form>
+    </div>
+</body>
+
+</html>
