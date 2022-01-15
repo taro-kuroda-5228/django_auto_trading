@@ -1,5 +1,11 @@
 {% extends 'auto_trading/base.html' %}
 
 {% block content %}
-<h1>This page is an index.</h1>
+
+<form method="POST" class="form">{% csrf_token %}
+    <label for="ティッカーシンボル">Ticker?</label>
+    <input type="text" id="form" name="form">
+    <button type="submit" class="save btn btn-default">Submit</button>
+    {{index}}
+</form>
 {% endblock %}
