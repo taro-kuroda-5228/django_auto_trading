@@ -2,10 +2,9 @@
 
 {% block content %}
 
-<form method="POST" class="form">{% csrf_token %}
-    <label for="ティッカーシンボル">Ticker?</label>
-    <input type="text" id="form" name="form">
-    <button type="submit" class="save btn btn-default">Submit</button>
-    {{index}}
+<form action="{% url 'auto_trading:inputs'%}" method="POST">
+    {% csrf_token %}
+    {{form}}
+    <button type="submit">Submit</button>
 </form>
 {% endblock %}
