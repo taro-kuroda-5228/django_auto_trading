@@ -1,5 +1,10 @@
 {% extends 'auto_trading/base.html' %}
 
 {% block content %}
-<h1>This page is an index.</h1>
+
+<form action="{% url 'auto_trading:inputs'%}" method="POST">
+    {% csrf_token %}
+    {{form}}
+    <button type="submit">Submit</button>
+</form>
 {% endblock %}
