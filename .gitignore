@@ -1,2 +1,4 @@
 myvenv/
 __pycache__/
+alpha_vantage_api/
+local_settings.py/
