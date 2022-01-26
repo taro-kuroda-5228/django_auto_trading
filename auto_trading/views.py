@@ -6,7 +6,7 @@ from django.http import (
 )
 from django.shortcuts import render
 from config.forms import InputForm
-from auto_trading.local_settings_amend import APIkey
+from auto_trading.local_settings_amend import API_KEY
 import csv
 import requests
 import pandas as pd
@@ -25,18 +25,24 @@ def index(request):
 
 
 def inputs(request):
+    """This method gets ticker symbol from index.html and sends that to views.results."""
+
     ticker = request.POST.get("ticker")
     form = InputForm(request.POST)
-    if form.is_valid():
-        return HttpResponseRedirect(reverse("auto_trading:results"), {"ticker": ticker})
+    is_valid = form.is_valid()
+    if is_valid:
+        return HttpResponseRedirect(reverse("auto_trading:results"))
     return HttpResponse("Alphabet only!")
 
 
-def get_compnay_name():
-    api_key = APIkey.api_key
+def get_company_name() -> str:
+    """This method gets real company name from ticker with using Alpha Vantage."""
+
+    api_key = API_KEY
     CSV_URL = (
         f"https://www.alphavantage.co/query?function=LISTING_STATUS&apikey={api_key}"
     )
+
     with requests.Session() as s:
         download = s.get(CSV_URL)
         decoded_content = download.content.decode("utf-8")
@@ -45,10 +51,17 @@ def get_compnay_name():
 
     data = pd.DataFrame(my_list, columns=my_list[0])
     data = data.drop(0, axis=0)
-    return data
+    data = list(data[data["symbol"] == "MSFT"]["name"])
+    return data[0]
 
 
 def plot(ticker: str, raw_data: RawData, num_date: int = 30):
+    """This method makes close price chart of the company.
+    Args:
+      ticker: ticker symbol of the company
+      raw_data: Rawdata module
+      num_date: How many days information you want. Default is 30
+    """
     close_value_num_date = pd.Series(raw_data["close"])
     datetime_num_date = pd.Series(raw_data.index[:285])
 
@@ -78,6 +91,7 @@ def plot(ticker: str, raw_data: RawData, num_date: int = 30):
 
 
 def pred(model: Model):
+    """Prediction of the next day, up or down."""
     predicted = model.predict()[0]
     if predicted == 1:
         return "up"
@@ -86,7 +100,7 @@ def pred(model: Model):
 
 def results(request):
     ticker = "MSFT"
-    company_name = get_compnay_name().to_html()
+    company_name = get_company_name()
     symbol_data = SymbolData(ticker).symbol_data
     raw_data = RawData(symbol_data).raw_data
     plot(ticker, raw_data)
@@ -101,7 +115,7 @@ def results(request):
     model = Model(datamart)
     up_down = pred(model)
 
-    api_key = APIkey.api_key
+    api_key = API_KEY
     url = f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={ticker}&apikey={api_key}"
     r = requests.get(url)
     description = r.json()
