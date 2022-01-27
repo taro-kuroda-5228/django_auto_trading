@@ -1,2 +1,4 @@
 myvenv/
 __pycache__/
+local_settings_amend.py
+*.png
