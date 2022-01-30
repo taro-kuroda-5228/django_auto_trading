@@ -5,5 +5,5 @@ app_name = "auto_trading"
 urlpatterns = [
     path("", views.index, name="index"),
     path("inputs/", views.inputs, name="inputs"),
-    path("results/", views.results, name="results"),
+    path("results/<str:ticker>", views.results, name="results"),
 ]
