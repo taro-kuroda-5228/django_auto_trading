@@ -31,7 +31,7 @@ def inputs(request):
     form = InputForm(request.POST)
     is_valid = form.is_valid()
     if is_valid:
-        return HttpResponseRedirect(reverse("auto_trading:results"))
+        return HttpResponseRedirect(reverse("auto_trading:results", args=(ticker,)))
     return HttpResponse("Alphabet only!")
 
 
@@ -98,8 +98,7 @@ def pred(model: Model):
     return "down"
 
 
-def results(request):
-    ticker = "MSFT"
+def results(request, ticker):
     company_name = get_company_name()
     symbol_data = SymbolData(ticker).symbol_data
     raw_data = RawData(symbol_data).raw_data
