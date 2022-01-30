@@ -1,0 +1,6 @@
+Django
+requests
+pandas
+matplotlib
+yahoo_finance_api2
+lightgbm
