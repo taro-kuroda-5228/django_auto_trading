@@ -1,7 +1,6 @@
 from django.urls import reverse
 from django.http import (
     HttpResponse,
-    HttpResponsePermanentRedirect,
     HttpResponseRedirect,
 )
 from django.shortcuts import render
@@ -11,7 +10,6 @@ import csv
 import requests
 import pandas as pd
 import matplotlib.pyplot as plt
-from auto_trading.base.name import Name
 from auto_trading.base.symbol_data import SymbolData
 from auto_trading.base.raw_data import RawData
 from auto_trading.base.datamart import Datamart
@@ -35,12 +33,11 @@ def inputs(request):
     return HttpResponse("Alphabet only!")
 
 
-def get_company_name() -> str:
+def get_company_name(ticker: str) -> str:
     """This method gets real company name from ticker with using Alpha Vantage."""
 
-    api_key = API_KEY
     CSV_URL = (
-        f"https://www.alphavantage.co/query?function=LISTING_STATUS&apikey={api_key}"
+        f"https://www.alphavantage.co/query?function=LISTING_STATUS&apikey={API_KEY}"
     )
 
     with requests.Session() as s:
@@ -51,7 +48,7 @@ def get_company_name() -> str:
 
     data = pd.DataFrame(my_list, columns=my_list[0])
     data = data.drop(0, axis=0)
-    data = list(data[data["symbol"] == "MSFT"]["name"])
+    data = list(data[data["symbol"] == ticker]["name"])
     return data[0]
 
 
@@ -99,7 +96,7 @@ def pred(model: Model):
 
 
 def results(request, ticker):
-    company_name = get_company_name()
+    company_name = get_company_name(ticker)
     symbol_data = SymbolData(ticker).symbol_data
     raw_data = RawData(symbol_data).raw_data
     plot(ticker, raw_data)
@@ -114,8 +111,7 @@ def results(request, ticker):
     model = Model(datamart)
     up_down = pred(model)
 
-    api_key = API_KEY
-    url = f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={ticker}&apikey={api_key}"
+    url = f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={ticker}&apikey={API_KEY}"
     r = requests.get(url)
     description = r.json()
 

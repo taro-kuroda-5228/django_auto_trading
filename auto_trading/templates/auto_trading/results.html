@@ -4,7 +4,7 @@
 
 <header>
     <h1>Auto Trading</h1>
-    <a href="index.html">Top Page</a>
+    <a href="../../django_auto_trading">Top Page</a>
 </header>
 
 {% autoescape off %}
@@ -20,7 +20,11 @@
         <img src="/static/images/ticker.png" alt="stock chart" title="chart">
     </div>
     <div class="company_desc">
-        {{description}}
+        {% for key, value in description.items %}
+        <ul>
+            <li>{{key}} : {{value}}</li>
+        </ul>
+        {% endfor %}
     </div>
     <div class="yesterday_table">
         {{yesterday_table}}
