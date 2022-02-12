@@ -4,22 +4,20 @@ from sklearn.model_selection import train_test_split
 
 
 class Model:
-    def __init__(self, datamart):
+    """Model class predicts future price, up or down.
+    Use LightGBM as a predictor model.
+    Args:
+        datamart: the stock datamart you want to predict
+        feature: explanatory variables
+    """    
+    def __init__(self, datamart, feature):
         self._datamart = datamart
+        self._feature = feature
 
     def fit(self):
         self.clf = lgb.LGBMClassifier()
-        self.df = pd.DataFrame(self._datamart)
-        self.X = self.df[
-            [
-                "close_N-0",
-                "close_N-1",
-                "close_N-2",
-                "close_N-3",
-                "close_N-4",
-                "close_N-5",
-            ]
-        ]
+        self.df = pd.concat([self._datamart, self._feature], axis=1)
+        self.X = self.df.iloc[:,1:]
         self.y = self.df["target"]
         self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
             self.X, self.y, test_size=0.3, random_state=0

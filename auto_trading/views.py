@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 from auto_trading.base.symbol_data import SymbolData
 from auto_trading.base.raw_data import RawData
 from auto_trading.base.datamart import Datamart
+from auto_trading.base.feature import Feature
 from auto_trading.base.model import Model
 
 
@@ -87,12 +88,48 @@ def plot(ticker: str, raw_data: RawData, num_date: int = 30):
     plt.close()
 
 
+def create_exp(num_lag, *tickers: str) -> Feature:
+    """Create explanatory variables.
+    Typical usage example:
+        if you want to use DIA and SPY price as explanatory variables,
+        feature = create_exp('DIA', 'SPY')
+    """
+    features = []
+    ticker_dict = {ticker: f"datamart_{ticker}" for ticker in tickers}
+    for ticker in tickers:
+        symbol_data = SymbolData(ticker).symbol_data
+        raw_data = RawData(symbol_data).raw_data
+        single_values = "close"
+        days_before = 1
+        ticker_dict[ticker] = Datamart(
+            raw_data, single_values, num_lag, days_before, ticker
+        ).datamart
+        features.append(ticker_dict[ticker])
+
+    feature = Feature(features).concat_datamarts()
+    return feature
+
+
 def pred(model: Model):
-    """Prediction of the next day, up or down."""
+    """Prediction of the future price, up or down."""
     predicted = model.predict()[0]
     if predicted == 1:
         return "up"
     return "down"
+
+
+def pred_future(
+    raw_data: RawData, single_values: str, num_lag: int, days_before: int, ticker: str
+):
+    """Prediction for some duration
+    Typical usage example:
+        if you want to predict in a week close price, up or down,
+        pred_duration(raw_data, 'close', 7, 7, ticker)
+    """
+    datamart = Datamart(raw_data, single_values, num_lag, days_before, ticker).datamart
+    feature = create_exp(num_lag, "DIA", "SPY", "QQQ", "IWM", "^VIX", "TLT")
+    model = Model(datamart, feature)
+    return pred(model)
 
 
 def results(request, ticker):
@@ -107,9 +144,9 @@ def results(request, ticker):
     ].set_index("datetime")
     yeasterday_table = yeasterday_table.to_html()
 
-    datamart = Datamart(raw_data, "close", 10).datamart
-    model = Model(datamart)
-    up_down = pred(model)
+    up_down_tomorrow = pred_future(raw_data, "close", 5, 1, ticker)
+    up_down_1_week = pred_future(raw_data, "close", 7, 7, ticker)
+    up_down_1_month = pred_future(raw_data, "close", 30, 30, ticker)
 
     url = f"https://www.alphavantage.co/query?function=OVERVIEW&symbol={ticker}&apikey={API_KEY}"
     r = requests.get(url)
@@ -121,7 +158,9 @@ def results(request, ticker):
         {
             "ticker": ticker,
             "company_name": company_name,
-            "up_down": up_down,
+            "up_down_tomorrow": up_down_tomorrow,
+            "up_down_1_week": up_down_1_week,
+            "up_down_1_month": up_down_1_month,
             "description": description,
             "yesterday_table": yeasterday_table,
         },
