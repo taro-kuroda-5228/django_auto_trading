@@ -88,7 +88,7 @@ def plot(ticker: str, raw_data: RawData, num_date: int = 30):
     plt.close()
 
 
-def create_exp(num_lag, *tickers: str) -> Feature:
+def create_exp(num_lag, *tickers: str) -> pd.DataFrame:
     """Create explanatory variables.
     Typical usage example:
         if you want to use DIA and SPY price as explanatory variables,
