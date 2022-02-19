@@ -1,0 +1,3 @@
+[submodule "auto_trading/auto_trading_submodule"]
+	path = auto_trading/auto_trading_submodule
+	url = https://github.com/taro-kuroda-5228/auto_trading_submodule.git
